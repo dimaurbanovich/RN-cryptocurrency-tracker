@@ -1,10 +1,12 @@
-import { View, Text, StyleSheet, Image, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Image, Dimensions } from 'react-native';
 import {
   ChartDot,
   ChartPath,
   ChartPathProvider,
   ChartYLabel,
-} from "@rainbow-me/animated-charts";
+} from '@rainbow-me/animated-charts';
+import { useSharedValue } from 'react-native-reanimated';
+import { useEffect } from 'react';
 
 const Chart = ({
   name,
@@ -14,25 +16,33 @@ const Chart = ({
   logoUrl,
   sparkline,
 }) => {
-  const priceChangeColor = priceChangePercentage7d > 0 ? "#34C759" : "#FF3B30";
+  const latestCurrentPrice = useSharedValue(currentPrice);
 
-  const { width: SIZE } = Dimensions.get("window");
+  const priceChangeColor = priceChangePercentage7d > 0 ? '#34C759' : '#FF3B30';
+
+  useEffect(() => {
+    latestCurrentPrice.value = currentPrice;
+  }, [currentPrice]);
+
+  const { width: SIZE } = Dimensions.get('window');
 
   const formatUSD = (value) => {
-    "worklet";
-    if (value === "") {
-      return `$${currentPrice.toLocaleString("en-US", { currency: "USD" })}`;
+    'worklet';
+    if (value === '') {
+      return `$${latestCurrentPrice.value.toLocaleString('en-US', {
+        currency: 'USD',
+      })}`;
     }
 
     const formatedValue = `$${parseFloat(value)
       .toFixed(2)
-      .replace(/\d(?=(\d{3})+\.)/g, "$&,")}`;
+      .replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
     return formatedValue;
   };
 
   return (
     <ChartPathProvider
-      data={{ points: sparkline, smoothingStrategy: "bezier" }}
+      data={{ points: sparkline, smoothingStrategy: 'bezier' }}
     >
       <View style={styles.chartWrapper}>
         <View style={styles.titlesWrapper}>
@@ -54,7 +64,7 @@ const Chart = ({
         </View>
         <View style={styles.chartLineWrapper}>
           <ChartPath height={SIZE / 2} stroke="black" width={SIZE} />
-          <ChartDot style={{ backgroundColor: "black" }} />
+          <ChartDot style={{ backgroundColor: 'black' }} />
         </View>
       </View>
     </ChartPathProvider>
@@ -69,13 +79,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   upperTitles: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   upperLeftTitle: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   image: {
     width: 24,
@@ -84,16 +94,16 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 14,
-    color: "#A9ABB1",
+    color: '#A9ABB1',
   },
   lowerTitles: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   boldTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   title: {
     fontSize: 18,

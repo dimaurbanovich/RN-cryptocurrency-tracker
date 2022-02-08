@@ -1,12 +1,14 @@
-import React, { useRef, useMemo, useState } from "react";
-import { FlatList, StyleSheet, Text, View, SafeAreaView } from "react-native";
-import ListItem from "./components/ListItem";
+import React, { useRef, useMemo, useState, useEffect } from 'react';
+import { FlatList, StyleSheet, Text, View, SafeAreaView } from 'react-native';
+import ListItem from './components/ListItem';
+import Chart from './components/Chart';
+
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
-} from "@gorhom/bottom-sheet";
-import { SAMPLE_DATA } from "./assets/data/sampleData";
-import Chart from "./components/Chart";
+} from '@gorhom/bottom-sheet';
+import { SAMPLE_DATA } from './assets/data/sampleData';
+import { getMarketData } from './services/cryptoService';
 
 const ListHeader = () => (
   <>
@@ -18,15 +20,26 @@ const ListHeader = () => (
 );
 
 export default function App() {
+  const [data, setData] = useState([]);
   const [selectedCoinData, setSelectedCoinData] = useState(null);
+
+  useEffect(() => {
+    const fetchMarketData = async () => {
+      const marketData = await getMarketData();
+      setData(marketData);
+    };
+
+    fetchMarketData();
+  }, []);
 
   const bottomSheetModalRef = useRef(null);
 
-  const snapPoints = useMemo(() => ["45%"], []);
+  const snapPoints = useMemo(() => ['45%'], []);
 
   const openModal = (item) => {
+    console.log(item);
     setSelectedCoinData(item);
-    bottomSheetModalRef.current?.present();
+    bottomSheetModalRef.current.present();
   };
 
   return (
@@ -56,7 +69,7 @@ export default function App() {
         snapPoints={snapPoints}
         style={styles.bottomSheet}
       >
-        {selectedCoinData && (
+        {selectedCoinData ? (
           <Chart
             name={selectedCoinData.name}
             symbol={selectedCoinData.symbol}
@@ -67,7 +80,7 @@ export default function App() {
             logoUrl={selectedCoinData.image}
             sparkline={selectedCoinData.sparkline_in_7d.price}
           />
-        )}
+        ) : null}
       </BottomSheetModal>
     </BottomSheetModalProvider>
   );
@@ -76,7 +89,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
   },
   titleWrapper: {
     marginTop: 20,
@@ -84,16 +97,16 @@ const styles = StyleSheet.create({
   },
   largeTitle: {
     fontSize: 24,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: "#A9ABB1",
+    backgroundColor: '#A9ABB1',
     marginTop: 16,
     marginHorizontal: 16,
   },
   bottomSheet: {
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: -4,
